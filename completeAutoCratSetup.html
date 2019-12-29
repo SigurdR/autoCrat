@@ -1,0 +1,27 @@
+<!-- ************************************************************************* -->
+<!-- completeAutoCratSetup.html                                                -->
+<!-- receive the responseString generated from setAllParameters() and notify   -->
+<!-- the result of saving all the setup parameters.                            -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3><?= responseString ?></h3><br />
+    <div>
+    
+       <input type="button" value="Ok" class="action" onclick="closeIt()" />
+    </div>
+    <script>
+      function closeIt() {
+
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>
+
+

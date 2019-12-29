@@ -1,0 +1,80 @@
+<!-- ************************************************************************* -->
+<!-- getOffset.html                                                            -->
+<!-- ask user to define the location of header row and 1st data row            -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3>Please define the location of header row and data row</h3>
+    <div>
+      <Table>
+        <col width="100">
+        <col width="10">
+        <col width="100">
+        
+        <tr>
+          <th><strong>Header Row</strong></th>
+            <th></th>
+          <th><strong>Data Row</strong></th>
+        </tr>
+        
+        <tr>
+          <td>
+            <select class="headerRow">
+              <option selected disabled hidden style='display: none' value =''></option>
+              <? for (var i in dataRow) { ?>
+                <option name="headerRowOption" value="<?= dataRow[i] ?>" /><?= dataRow[i] ?><br />
+              <? } ?>
+            </select>
+          </td>
+          <td>
+          </td>
+          <td>
+          <select class="dataRow">
+            <option selected disabled hidden style='display: none' value =''></option>
+              <? for (var i in dataRow) { ?>
+                <option name="dataRowOption" value="<?= dataRow[i] ?>" /><?= dataRow[i] ?><br />
+              <? } ?>
+          </select>
+        </tr>
+      </Table>
+      <br />
+      <br />
+      <input type="submit" value="Submit" class="action" onclick="checkNoBlank()" >
+      <input type="button" value="Close" onclick="google.script.host.close()" />
+      <p id='result'></p>
+    </div>
+    <script>
+      function checkNoBlank() {
+          
+        document.getElementById('result').innerHTML = '';
+          
+        var headerRowObject = document.getElementsByClassName("headerRow");
+        var dataRowObject = document.getElementsByClassName("dataRow");
+          
+        if (headerRowObject.value == '' || dataRowObject.value == '') {
+          
+          showError('You should define the location of header row and data row.');
+        } else {
+          
+          google.script.run.withSuccessHandler(closeIt).getMappingString(headerRowObject[0].value, dataRowObject[0].value);
+        } 
+      }
+          
+      function showError(message) {
+          
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('result').innerHTML = 'Error: ' + message;
+      }
+          
+      function closeIt() {
+          
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>

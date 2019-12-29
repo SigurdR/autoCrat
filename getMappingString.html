@@ -1,0 +1,146 @@
+<!-- ************************************************************************* -->
+<!-- getMappingString.html                                                     -->
+<!-- allow user to match the merge field in document and headers in merge      -->
+<!-- data, and to define the data type of each of the merge data. The key      -->
+<!-- (merge field) and value (headers) will be set in the                      -->
+<!-- headerFieldPairString, and output to getDestinationFolder() in server     -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3>Match the merge fields below with the corresponding data headers.</h3>
+    <div>
+        <Table>
+          <col width="30">
+          <col width="200">
+          <col width="100">
+          <col width="200">
+          <col width="100">
+          
+          <tr>
+            <th></th>
+            <th><strong>Merge Field</strong></th>
+            <th></th>
+            <th><strong>Data Header</strong></th>
+            <th><strong>Type of Data</strong></th>
+          </tr>
+          
+          <? for (var i in mergeFields) { ?>
+            <tr>
+              <td></td>
+              <td>
+                <label class="mergeFields" for="userSelect" + i value="<?= mergeFields[i] ?>"><?= mergeFields[i] ?></label>
+              </td>
+              <td>
+                <label for="equal"> = </label>
+              </td>
+              <td>
+                <select class="userSelect">
+                  <option selected disabled hidden style='display: none' value =''></option>
+                  <? for (var j in headers) { ?>
+                    <option name="headers" value="<?= headersIndex[j] ?>" /><?= headers[j] ?><br />
+                  <? } ?>
+                </select>
+              </td>
+              <td>
+                <select class="dataTypes">
+                  <option selected disabled hidden style='display: none' value =''></option>
+                  <? for (var i in dataTypes) { ?>
+                    <option name="typeOptions" value="<?= dataTypes[i] ?>" /><?= dataTypes[i] ?><br />
+                  <? } ?>
+                  <!-- <option class="mustHaveValue" selected disabled value='' />
+                  <option class="mustHaveValue" value="Yes"/>Yes
+                  <option class="mustHaveValue" value="No" selected/>No -->
+                </select>
+              </td>
+            </tr>
+          <? } ?>
+        </Table>
+        <br />
+        <br />
+        <input type="submit" value="Submit" class="action" onclick="checkNoBlank()" >
+        <input type="button" value="Close" onclick="google.script.host.close()" />
+        <p id='result'></p>
+        </div>
+        <script>
+          function checkNoBlank() {
+          
+            document.getElementById('result').innerHTML = '';
+          
+            var selectObject = document.getElementsByClassName("userSelect");
+            var labelObject = document.getElementsByClassName("mergeFields");
+            var dataTypes = document.getElementsByClassName("dataTypes");
+            
+            var userInputEmpty = false;
+            var dataTypesEmpty = false;
+            
+            for (var i=0; i<selectObject.length; ++i) {
+            
+              if (selectObject[i].value == '') {
+              
+                userInputEmpty = true;
+              }
+              
+              if (dataTypes[i].value == '') {
+              
+                dataTypesEmpty = true;
+              }
+            }
+            
+            if (userInputEmpty) {
+            
+              showError('You should select data headers for all the merge fields.');
+            }
+            
+            else {
+            
+                if (dataTypesEmpty) {
+                
+                  showError('You should specify the data type for each of the merge data.');
+                }
+                else {
+                
+                  document.getElementById('result').innerHTML = '';
+                  
+                  var headerFieldPairString = '[';
+                  
+                  for (var i=0; i<selectObject.length; ++i) {
+                    
+                    if (i == selectObject.length - 1) {
+                      
+                      headerFieldPairString += '{"tag" : "<<' + labelObject[i].textContent + '>>", "type" : "' + dataTypes[i].value + '", "data" : "' + selectObject[i].value + '"}';
+                    }
+                    else {
+                    
+                      headerFieldPairString += '{"tag" : "<<' + labelObject[i].textContent + '>>", "type" : "' + dataTypes[i].value + '", "data" : "' + selectObject[i].value + '"}, ';
+                    } 
+                  }
+                  
+                  headerFieldPairString += ']';
+                  
+                  google.script.run.withSuccessHandler(closeIt).getMergeConditions(headerFieldPairString);
+                }
+             }
+          }
+          
+          function showError(message) {
+          
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').innerHTML = 'Error: ' + message;
+          }
+          
+          function closeIt() {
+
+            google.script.host.close();
+          }
+          
+        </script>
+   </body>
+</html>
+
+
+

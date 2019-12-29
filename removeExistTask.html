@@ -1,0 +1,40 @@
+<!-- ************************************************************************* -->
+<!-- removeExistTask.html                                                      -->
+<!-- ask if the user want to remove the task previously set, if yes, return    -->
+<!-- the Task ID get from checkTaskExist() and return it to getMappingString(),-->
+<!-- if no, close the side bar and leave.                                      -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3>Task was set previously, do you want to renew it?</h3><br />
+    <div>
+    
+       <input type="button" value="Yes" class="action" onclick="removeTask()" />
+       <input type="button" value="No" onclick="google.script.host.close()" />
+       <p id='result'></p>
+    </div>
+    <script>
+      function removeTask() {
+
+        google.script.run.withSuccessHandler(closeIt).getOffset();
+      }
+      
+      function showError(message) {
+          
+        document.getElementById('result').innerHTML = 'Error: ' + message;
+      }
+          
+      function closeIt() {
+          
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>
+
+

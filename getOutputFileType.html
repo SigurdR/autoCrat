@@ -1,0 +1,44 @@
+<!-- ************************************************************************* -->
+<!-- getOutputFileType.html                                                    -->
+<!-- allow user to select the format of output file, either PDF or the         -->
+<!-- file format same as the template file. Output the fileType string to      -->
+<!-- getMergedFileName()                                                       -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+      <h3>Select a file format for the merged document.</h3>
+      <div>
+        <input type="radio" name="fileType" value="PDF" checked>PDF<br />
+        <br />
+        <input type="radio" name="fileType" value="Same as template">Same as template<br />
+        <br />
+      </div>
+      
+      <div>
+        <input type="submit" value="Submit" class="action" onclick="submitFileType()"/>
+        <input type="button" value="Close" onclick="google.script.host.close()" />
+        <p id='result'></p>
+      </div>
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+      <!-- the above java script is needed to get the value of a document element -->
+      <script>
+        
+        function submitFileType() {
+        
+          google.script.run.withSuccessHandler(closeIt).getMergedFileName($("input[name=fileType]:checked").val());
+        }
+        
+        function closeIt() {
+
+          google.script.host.close();
+        }
+      </script>
+  </body>
+</html>
+
+

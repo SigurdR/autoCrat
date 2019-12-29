@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <script>
+  function onSuccess() {
+    var div = document.getElementById('result');
+    div.innerHTML = '<div>Sucess!</div>';
+  }
+
+    function onFailure() {
+    var div = document.getElementById('result');
+    div.innerHTML = '<div>Fail!</div>';
+  }
+  function clickAction(){
+    var div = document.getElementById('result');
+    div.innerHTML = '<div> Copying...<br><img src="https://c4a54d10381f750e81dcc323aed21e2c95725815.googledrive.com/host/0Bwyqwd2fAHMMallsNkNOV0RfcTg/wait_progress.gif"></div>';
+  google.script.run
+  .withSuccessHandler(onSuccess)
+  .withFailureHandler(onFailure)
+  .testSpinner();
+  }
+
+</script>
+
+<button class="action" onclick="clickAction()"> Copy</button>
+<button onclick="google.script.host.close()"> Close</button>
+<div id='result'></div>
+  </body>
+</html>
+
+

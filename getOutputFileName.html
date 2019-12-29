@@ -1,0 +1,93 @@
+<!-- ************************************************************************* -->
+<!-- getOutputFileName.html                                                    -->
+<!-- allow user to either select a must have field or assign a name to be the  -->
+<!-- merged file name. Output the fileName string to setAllParameters() on     -->
+<!-- server side                                                               -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <h3>Please input a filename for the merged file.</h3>
+    <div>
+      <input type="radio" name="fileNameOption" id="Yes" value="Yes" checked>Use selected field name as file name<br />
+      <br />
+      <input type="radio" name="fileNameOption" id="No" value="No">Use a new file name<br />
+      <br />
+      <br />
+      <select name="fieldName" id="fieldName">
+        <option selected disabled hidden style='display: none' value =''></option>
+        <? for (var i in nameToSelect) { ?>
+        <option name="select" value="<?= nameToSelect[i] ?>" /><?= nameToSelect[i] ?><br />
+        <? } ?>
+      </select>
+      <br />
+      <input type="text" name="newFileName" id="newFileName" hidden><br />
+      <br />
+    </div>
+    <div>
+      <input type="submit" value="Submit" class="action" onclick="submitFileName()">
+      <input type="button" value="Close" onclick="google.script.host.close()" />
+      <br /><br />
+      <p>Please note that unless you have defined the merge condition in Step 3, otherwise you cannot choose field name as file name.</p>
+      <p id='result'></p>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+      $("#Yes").click(function() {
+        document.getElementById("fieldName").style.visibility = "visible";
+        $("#newFileName").attr("hidden",true);
+        document.getElementById("newFileName").value = '';
+      });
+      
+      $("#No").click(function() {
+        document.getElementById("fieldName").style.visibility = "hidden";
+        $("#newFileName").attr("hidden",false);
+        document.getElementById("fieldName").value = '';
+      });
+      
+      function submitFileName() {
+        
+        var fileName = document.getElementById("fieldName").value;
+        var fileNameTypeString = '';
+        
+        if (fileName == '') {
+        
+          fileName = document.getElementById("newFileName").value;
+        }
+        else {
+        
+          fileNameTypeString = '[{"type" : "preDefined", "value" : "' + fileName + '"}]';
+        }
+        
+        if (fileName == '') {
+        
+          showError("You must give the merged file a name.");
+        }
+        else {
+        
+          if (fileNameTypeString == '') {
+          
+            fileNameTypeString = '[{"type" : "userDefined", "value" : "' + fileName + '"}]';
+          }
+        
+          google.script.run.withSuccessHandler(closeIt).setAllParameters(fileNameTypeString);
+        } 
+      }
+      
+      function showError(message) {
+        document.getElementById('result').innerHTML = 'Error: ' + message;
+      }
+      
+      function closeIt() {
+
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>
+
+

@@ -1,0 +1,268 @@
+<!-- ************************************************************************* -->
+<!-- getMergeCondition.html                                                    -->
+<!-- ask user if one wants to define a condition to run the task. Click        -->
+<!-- "Next" with no condition, the task will be executed regardless the value  -->
+<!-- in the data. If one wants to add condition, retrieve the headers selected -->
+<!-- in previous step, and let the user select the headers to validate before  -->
+<!-- running the task, output the condition string to getDestinationFolder(    -->
+<!-- conditionString) on the server to save the condition string in            -->
+<!-- scriptProperties                                                          -->
+<!-- ************************************************************************* -->
+
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+     
+  </head>
+  <body>
+    <div>
+      <input type="button" id="add" value="Add Condition" class="AddCondition" onclick="addCondition()" />
+      <input type="button" id="remove" value="Remove Condition" class="RemoveCondition" onclick="removeCondition()" /><br/><br />
+    </div>
+    <div id="condition"></div>
+    <br />
+    <br />
+    <table id="conditionTable">
+      <col width="100">
+      <col width="100">
+      <col width="100">
+      <thead>
+        <tr>
+          <!-- <th></th> -->
+          <th><strong>Data Header</strong></th>
+          <th></th>
+          <th><strong>Value</strong></th>
+        </tr>
+      </thead>
+      <!--<br/><br/>-->
+      <tbody>
+      </tbody>
+    </table>
+    <div>
+      <br/><br />
+      <input type="submit" value="Next" onclick="submitConditions()"/>
+      <input type="button" value="Close" onclick="google.script.host.close()" />
+      <p id='result'></p>
+    </div>
+    <script>
+      function submitConditions() {
+      
+      //***************************************************************************//
+      // submitConditions()                                                        //
+      // check if any of the data headers (the selected value in the select        //
+      // element) are identical. If no, then go to makeConditionString for further //
+      // processing.                                                               //
+      //***************************************************************************//
+      
+        var selectCondition = document.getElementsByClassName("selectCondition");
+        
+        if (selectCondition) {
+          
+
+          for (var i = 0; i < selectCondition.length; ++i) {
+          
+            var findMatch = 0;
+            var searchKey = selectCondition[i].value
+            
+            for (var j = 0; j < selectCondition.length; ++j) {
+            
+              if (selectCondition[j].value == searchKey) {
+              
+                findMatch += 1;
+                
+                if (findMatch > 1) {
+                
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (findMatch > 1) {
+          
+            showError("You cannot have 2 conditions with same data header.");
+          }
+          else {
+          
+            makeConditionString();
+          }
+        }
+        else {
+        
+          google.script.run.withSuccessHandler(closeIt).getDestinationFolder("NULL");
+        }
+      }
+      
+      function makeConditionString() {
+      
+      //***************************************************************************//
+      // makeConditionString()                                                     //
+      // create conditionString array in a {"headerMap" : "[selectCondition]",     //
+      // "value" : "[ruleValue]"} format and upload it to the getDestination-      //
+      // Folder on the server.                                                     //
+      //***************************************************************************//
+      
+        var selectCondition = document.getElementsByClassName("selectCondition");
+        var ruleValue = document.getElementsByClassName("ruleValue");
+        
+        var conditionString = '[';
+        
+        for (var i = 0; i < selectCondition.length; ++i) {
+        
+          if ( i == selectCondition.length - 1) {
+          
+            conditionString += '{"headerMap" : "' + selectCondition[i].options[selectCondition[i].value].textContent + '", "value" : "' + ruleValue[i].value + '"}';
+          }
+          else {
+          
+            conditionString += '{"headerMap" : "' + selectCondition[i].options[selectCondition[i].value].textContent + '", "value" : "' + ruleValue[i].value + '"}, ';
+          }
+        }
+        
+        conditionString += ']';
+        
+        google.script.run.withSuccessHandler(closeIt).getDestinationFolder(conditionString);
+      }
+      
+      function addCondition() {
+      
+      //***************************************************************************//
+      // addCondition()                                                            //
+      // Check first if the select elements on the screen is equal to the number   //
+      // of selected headers. Since we check the value of the merge data to decide //
+      // whether to continue the process, so the number of select elements should  //
+      // not be greater than that of the selected headers. If yes, for each click  //
+      // on the addCondition(), we create a select element to stored the selected  //
+      // headers, a label element simply for describing the condition and a input  //
+      // element for user to input the value to compare, with NOT_NULL as the      //
+      // default value. The function will not executed if the number of select     //
+      // element is greater than or equal to that of the selected headers          //
+      //***************************************************************************//
+      
+          // check the number of select elements on the screen equals to the number of selected headers
+          
+          var existSelectCondition = document.getElementsByClassName("selectCondition");
+          
+          var childCount = 0;
+          
+          if (existSelectCondition.length) {
+          
+            childCount = existSelectCondition[0].childNodes.length;
+          }
+          
+          if (existSelectCondition.length < childCount || existSelectCondition.length == 0) {
+            
+            var selectCondition = document.createElement("select");
+            selectCondition.className = "selectCondition";
+            
+            var equalLabel = document.createElement("label");
+            var textNode = document.createTextNode("Equal");
+            equalLabel.className = "equalLabel";
+      
+            equalLabel.appendChild(textNode);
+            
+            var ruleValue = document.createElement("input");
+            ruleValue.className = "ruleValue";
+            ruleValue.type = "text";
+            ruleValue.defaultValue = "NOT_NULL";
+            ruleValue.required = true;
+            
+            var attrClass = document.createAttribute("class");
+            var attrFor = document.createAttribute("for");
+            attrFor.value = document.getElementsByClassName("ruleValue");
+            equalLabel.setAttributeNode(attrFor);
+            
+            var table = document.getElementById("conditionTable");
+            
+            var row = table.insertRow();
+            
+            var firstCell = row.insertCell(0);
+            var secondCell = row.insertCell(1);
+            var thirdCell = row.insertCell(2);
+            
+            firstCell.className = "cell1";
+            secondCell.className = "cell2";
+            thirdCell.className = "cell3";
+            
+            var attrAlign = document.createAttribute("align");
+            attrAlign.value = "center";
+            secondCell.setAttributeNode(attrAlign);
+            
+            firstCell.append(selectCondition);
+            secondCell.append(equalLabel);
+            thirdCell.append(ruleValue);
+            
+            getSelectedHeadersFromServer();
+            }
+      }
+      
+      function removeCondition() {
+      
+      //***************************************************************************//
+      // removeCondition()                                                         //
+      // Check the number of rows created in conditionTable. The 1st row is for    //
+      // header, therefore for each click on the removeCondition(), one row will   //
+      // be removed from the panel. This function will not executed, if only the   //
+      // row contains header left on the panel.                                    //
+      //***************************************************************************//
+
+          var conditionTable = document.getElementById("conditionTable");
+          
+          if (conditionTable.rows.length > 1) {
+          
+            conditionTable.deleteRow(-1); // -1 means last row
+          }
+      }
+      
+      function showError(message) {
+          
+//        document.getElementById('result').innerHTML = '';
+//        document.getElementById('result').innerHTML = 'Error: ' + message;
+        var existText = document.getElementById('result').textContent;
+        document.getElementById('result').innerHTML = existText + ' ' + message;
+      }
+
+      function getSelectedHeadersFromServer() {
+        
+        google.script.run.withSuccessHandler(buildOption).getSelectedHeaders();
+        
+      }
+        
+      function buildOption(optionData) {
+      
+      //***************************************************************************//
+      // buildOption(optionData)                                                   //
+      // This function is called by addCondition(). Along with the optionData      //
+      // returned by the getSelectedHeaders() from server, bind the value to the   //
+      // option elements under the selectCondition class for user to define the    //
+      // condition. Since there may be serveral selectCondition class on the panel,//
+      // and binding same option value more than once is illegal, we will check    //
+      // each of the selectCondition class for having child nodes. If there are,   //
+      // meaning the option has been binded during previous executions. Jump to the// 
+      // next selectCondition class to continue the check and binding process.     //
+      //***************************************************************************//
+      
+        var selectCondition = document.getElementsByClassName("selectCondition");
+        
+        for (var i=0; i < selectCondition.length; ++i) {
+        
+          if (!selectCondition[i].hasChildNodes()) {
+        
+            for (index in optionData) {
+        
+              selectCondition[i].options[selectCondition[i].options.length] = new Option(optionData[index], index);
+            }
+          }
+        }
+      }
+      
+      function closeIt() {
+
+        google.script.host.close();
+      }
+    </script>
+  </body>
+</html>
+
+

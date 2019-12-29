@@ -1,0 +1,43 @@
+<?!= HtmlService.createHtmlOutputFromFile('styles.css').getContent(); ?>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+  
+  <h3 id='message'>文件製作中...</h3>
+  <br/><br/>
+  <p id='result'></p>
+  <script>
+  
+  window.onload = function(taskId) {
+  
+                  google.script.run.withSuccessHandler(showResult).searchPlan();
+                }
+  
+  function showError(message) {
+          
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('result').innerHTML = 'Error: ' + message;
+  }
+  
+  function showResult(responseMsg) {
+  
+    document.getElementById("message").innerHTML = responseMsg[1];
+    
+    if (responseMsg[0]) {
+    
+      google.script.run.autoCrat_trashDoc(responseMsg[2]);
+    }
+    //document.getElementById('result').innerHTML = 'Error: '
+  }
+          
+  function closeIt() {
+          
+    google.script.host.close();
+  }
+  </script>  
+  </body>
+</html>
+
+
